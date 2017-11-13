@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <array>
 #include <windows.h>
+#include <stdio.h>
 
 #define INFO_BUFFER_SIZE 32767
 
@@ -22,6 +23,9 @@ array<char,84> CHAR_TABLE = {'R', ';', 'K', '9', 'J', 'Q', '0', '!', '%', 'G', '
 'B', '~', 'O', 'a', 'j', 'Y', 'y', '#', '@', 'm', 'S', 'X', 't', 'N', 's', 'r', 'L', 'n', 'o'};
 
 const unsigned MAX_USERS = 2;
+
+// MAX COLUMNS FOR TRANSPOSITION CIPHER //
+const int TRANSPOSITION_COLUMNS = 6;
 
 array<string, MAX_USERS> users = {"tw07310", "tbowers"};
 
@@ -49,6 +53,35 @@ void randomize()
     shuffle(CHAR_TABLE.begin(), CHAR_TABLE.end(), default_random_engine(seed));
 }
 
+std::string GetClipboardText()
+{
+  // Try opening the clipboard
+  if (! OpenClipboard(nullptr))
+    cout << "error" << endl;
+
+  // Get handle of clipboard object for ANSI text
+  HANDLE hData = GetClipboardData(CF_TEXT);
+  if (hData == nullptr)
+    cout << "error" << endl;
+
+  // Lock the handle to get the actual text pointer
+  char * pszText = static_cast<char*>( GlobalLock(hData) );
+  if (pszText == nullptr)
+    cout << "error" << endl;
+
+  // Save text in a string class instance
+  std::string text( pszText );
+
+  // Release the lock
+  GlobalUnlock( hData );
+
+  // Release the clipboard
+  CloseClipboard();
+
+  return text;
+}
+
+
 void toClipboard(const std::string &s){
 	OpenClipboard(0);
 	EmptyClipboard();
@@ -63,9 +96,6 @@ void toClipboard(const std::string &s){
 	CloseClipboard();
 	GlobalFree(hg);
 }
-
-// MAX COLUMNS FOR TRANSPOSITION CIPHER //
-const int TRANSPOSITION_COLUMNS = 6;
 
 // GET INDEX OF CHARACTER FROM CHAR_TABLE //
 int lookup(char character)
@@ -200,7 +230,7 @@ string additive_decrypt(string msg, int key)
 }
 
 // ENCRYPT UI //
-string encrypt(string msg)
+string encrypt(string msg, int addkey, string autokey)
 {
 
     while (msg.length() % 6 != 0)
@@ -208,12 +238,6 @@ string encrypt(string msg)
         msg += ' ';
     }
     msg = transposition_encrypt(msg);
-
-    cout << "Enter keys: ";
-    int addkey;
-    cin >> addkey;
-    string autokey;
-    cin >> autokey;
 
     if (addkey > 0 && addkey < sizeof(CHAR_TABLE))
     {
@@ -239,14 +263,8 @@ string encrypt(string msg)
 }
 
 // DECRYPT UI //
-string decrypt(string msg)
+string decrypt(string msg, int addkey, string autokey)
 {
-    cout << "Enter keys: ";
-    int addkey;
-    cin >> addkey;
-    string autokey;
-    cin >> autokey;
-
     if (lookup(autokey[0] != -1))
     {
         msg = autokey_decrypt(msg, autokey);
@@ -282,6 +300,13 @@ int main()
     unsigned int option;
     string msg;
 
+    cout << "Enter keys: ";
+    int addkey;
+    cin >> addkey;
+    string autokey;
+    cin >> autokey;
+    cin.ignore();
+
     while (option != -1)
     {
         cout << "Encrypt(1) or Decrypt(0): ";
@@ -295,18 +320,16 @@ int main()
         }
         else
         {
-            cout << "Message: ";
-            cin.ignore();
-            getline(cin, msg);
-
             if (option == 1)
             {
-                msg = encrypt(msg);
+                getline(cin, msg);
+                msg = encrypt(msg, addkey, autokey);
                 cout << "\"" + msg + "\"" << endl;
             }
             else if (option == 0)
             {
-                msg = decrypt(msg);
+                msg = GetClipboardText();
+                msg = decrypt(msg, addkey, autokey);
                 cout << "\"" + msg + "\"" << endl;
             }
             else
