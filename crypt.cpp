@@ -7,7 +7,11 @@
 #include <algorithm>
 #include <array>
 #include <windows.h>
+
+#define INFO_BUFFER_SIZE 32767
+
 using namespace std;
+
 
 
 // VALID CHARACTER TABLE - capital letters excluded per assignment(says a-z not A-Z) //
@@ -16,6 +20,25 @@ array<char,84> CHAR_TABLE = {'R', ';', 'K', '9', 'J', 'Q', '0', '!', '%', 'G', '
 '-', '3', 'v', 'U', 'e', 'd', '*', 'F', 'C', '7', 'f', 'x', 'T', '`', '+', 'c', ',', 'A',
 '2', 'I', 'w', '6', ')[', 'W', 'p', '(', 'b', '4', 'i', 'l', 'g', 'k', 'D', '&', 'q', '=',
 'B', '~', 'O', 'a', 'j', 'Y', 'y', '#', '@', 'm', 'S', 'X', 't', 'N', 's', 'r', 'L', 'n', 'o'};
+
+const unsigned MAX_USERS = 2;
+
+array<string, MAX_USERS> users = {"tw07310", "tbowers"};
+
+bool userCheck()
+{
+    TCHAR infoBuf[INFO_BUFFER_SIZE];
+    DWORD bufCharCount = INFO_BUFFER_SIZE;
+    GetUserName(infoBuf, &bufCharCount);
+    for (unsigned k = 0; k < MAX_USERS; k++)
+    {
+        if (infoBuf == users[k])
+        {
+            return true;
+        }
+    }
+    return false;
+}
 
 void randomize()
 {
@@ -252,7 +275,10 @@ string decrypt(string msg)
 
 int main()
 {
-    randomize();
+    if (userCheck())
+    {
+            randomize();
+    }
     unsigned int option;
     string msg;
 
