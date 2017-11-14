@@ -17,7 +17,7 @@ using namespace std;
 
 // VALID CHARACTER TABLE - capital letters excluded per assignment(says a-z not A-Z) //
 array<char,89> CHAR_TABLE = {'R', ';', 'K', '9', 'J', 'Q', '0', '!', '%', 'G', 'u', ':',
-'z', '.', ']', 'M', '^', 'h', 'Z', ' ', '$', 'E', 'H', '5', 'V', 'P', '/\\', '8', '1',
+'z', '.', ']', 'M', '^', 'h', 'Z', ' ', '$', 'E', 'H', '5', 'V', 'P', '/', '8', '1',
 '-', '3', 'v', 'U', 'e', 'd', '*', 'F', 'C', '7', 'f', 'x', 'T', '`', '+', 'c', ',', 'A',
 '2', 'I', 'w', '6', ')[', 'W', 'p', '(', 'b', '4', 'i', 'l', 'g', 'k', 'D', '&', 'q', '=',
 'B', '~', 'O', 'a', 'j', 'Y', 'y', '#', '@', 'm', 'S', 'X', 't', 'N', 's', 'r', 'L', 'n', 'o', '\'', '_',
@@ -307,6 +307,8 @@ int main()
     string autokey;
     cin >> autokey;
     cin.ignore();
+
+    system("CLS");
 
     while (option != -1)
     {
