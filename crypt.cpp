@@ -13,15 +13,15 @@
 
 using namespace std;
 
-
+const UINT MOD_NOREPEAT = 0x4000;
 
 // VALID CHARACTER TABLE - capital letters excluded per assignment(says a-z not A-Z) //
-array<char,89> CHAR_TABLE = {'R', ';', 'K', '9', 'J', 'Q', '0', '!', '%', 'G', 'u', ':',
+array<char,90> CHAR_TABLE = {'R', ';', 'K', '9', 'J', 'Q', '0', '!', '%', 'G', 'u', ':',
 'z', '.', ']', 'M', '^', 'h', 'Z', ' ', '$', 'E', 'H', '5', 'V', 'P', '/', '8', '1',
 '-', '3', 'v', 'U', 'e', 'd', '*', 'F', 'C', '7', 'f', 'x', 'T', '`', '+', 'c', ',', 'A',
-'2', 'I', 'w', '6', ')[', 'W', 'p', '(', 'b', '4', 'i', 'l', 'g', 'k', 'D', '&', 'q', '=',
+'2', 'I', 'w', '6', ')', 'W', 'p', '(', 'b', '4', 'i', 'l', 'g', 'k', 'D', '&', 'q', '=',
 'B', '~', 'O', 'a', 'j', 'Y', 'y', '#', '@', 'm', 'S', 'X', 't', 'N', 's', 'r', 'L', 'n', 'o', '\'', '_',
-'<', '>', '?'};
+'<', '>', '?', '['};
 
 const unsigned MAX_USERS = 3;
 
@@ -29,6 +29,12 @@ const unsigned MAX_USERS = 3;
 const int TRANSPOSITION_COLUMNS = 6;
 
 array<string, MAX_USERS> users = {"tw07310", "tbowers", "tyler"};
+
+void clear()
+{
+    system("CLS");
+    return;
+}
 
 bool userCheck()
 {
@@ -294,6 +300,7 @@ string decrypt(string msg, int addkey, string autokey)
 
 int main()
 {
+
     if (userCheck())
     {
             randomize();
@@ -301,35 +308,38 @@ int main()
     unsigned int option;
     string msg;
 
-    cout << "Enter keys: ";
     int addkey;
     cin >> addkey;
     string autokey;
     cin >> autokey;
     cin.ignore();
 
-    system("CLS");
+    clear();
 
-    while (option != -1)
+    if (RegisterHotKey(
+        NULL,
+        1,
+        MOD_CONTROL | MOD_NOREPEAT,
+        0x45))
     {
-        cout << "Encrypt(1) or Decrypt(0): ";
-        cin >> option;
-        if (option != 0 && option != 1)
+        cout << "hotkey load successful" << endl;
+    }
+
+    if (RegisterHotKey(
+        NULL,
+        0,
+        MOD_CONTROL | MOD_NOREPEAT,
+        0x44))
+    {
+        cout << "hotkey load successful" << endl;
+    }
+
+    MSG wMsg = {0};
+    while (GetMessage(&wMsg, NULL, 0, 0) != 0)
+    {
+        if (wMsg.message == WM_HOTKEY)
         {
-            cout << "invalid option" << endl;
-            cin.ignore();
-            cin.get();
-            return -1;
-        }
-        else
-        {
-            if (option == 1)
-            {
-                cin.ignore();
-                getline(cin, msg);
-                msg = encrypt(msg, addkey, autokey);
-            }
-            else if (option == 0)
+            if (wMsg.wParam == 1)
             {
                 msg = GetClipboardText();
                 unsigned start = 0;
@@ -344,8 +354,27 @@ int main()
                         break;
                     }
                 }
+                //getline(cin, msg);
+                msg = encrypt(msg, addkey, autokey);
+            }
+            else if (wMsg.wParam == 0)
+            {
+                clear();
+                msg = GetClipboardText();
+                unsigned start = 0;
+                for (unsigned k = 0; k < msg.length(); k++)
+                {
+                    if (msg[k] == 13 || msg[k] == 10)
+                    {
+                        start++;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
                 msg = decrypt(msg.substr(start,msg.length()), addkey, autokey);
-                cout << "\"" + msg + "\"" << endl;
+                cout << msg << endl;
             }
             else
             {
