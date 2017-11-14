@@ -16,18 +16,19 @@ using namespace std;
 
 
 // VALID CHARACTER TABLE - capital letters excluded per assignment(says a-z not A-Z) //
-array<char,84> CHAR_TABLE = {'R', ';', 'K', '9', 'J', 'Q', '0', '!', '%', 'G', 'u', ':',
+array<char,89> CHAR_TABLE = {'R', ';', 'K', '9', 'J', 'Q', '0', '!', '%', 'G', 'u', ':',
 'z', '.', ']', 'M', '^', 'h', 'Z', ' ', '$', 'E', 'H', '5', 'V', 'P', '/\\', '8', '1',
 '-', '3', 'v', 'U', 'e', 'd', '*', 'F', 'C', '7', 'f', 'x', 'T', '`', '+', 'c', ',', 'A',
 '2', 'I', 'w', '6', ')[', 'W', 'p', '(', 'b', '4', 'i', 'l', 'g', 'k', 'D', '&', 'q', '=',
-'B', '~', 'O', 'a', 'j', 'Y', 'y', '#', '@', 'm', 'S', 'X', 't', 'N', 's', 'r', 'L', 'n', 'o'};
+'B', '~', 'O', 'a', 'j', 'Y', 'y', '#', '@', 'm', 'S', 'X', 't', 'N', 's', 'r', 'L', 'n', 'o', '\'', '_',
+'<', '>', '?'};
 
-const unsigned MAX_USERS = 2;
+const unsigned MAX_USERS = 3;
 
 // MAX COLUMNS FOR TRANSPOSITION CIPHER //
 const int TRANSPOSITION_COLUMNS = 6;
 
-array<string, MAX_USERS> users = {"tw07310", "tbowers"};
+array<string, MAX_USERS> users = {"tw07310", "tbowers", "tyler"};
 
 bool userCheck()
 {
@@ -322,14 +323,26 @@ int main()
         {
             if (option == 1)
             {
+                cin.ignore();
                 getline(cin, msg);
                 msg = encrypt(msg, addkey, autokey);
-                cout << "\"" + msg + "\"" << endl;
             }
             else if (option == 0)
             {
                 msg = GetClipboardText();
-                msg = decrypt(msg, addkey, autokey);
+                unsigned start = 0;
+                for (unsigned k = 0; k < msg.length(); k++)
+                {
+                    if (msg[k] == 13 || msg[k] == 10)
+                    {
+                        start++;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                msg = decrypt(msg.substr(start,msg.length()), addkey, autokey);
                 cout << "\"" + msg + "\"" << endl;
             }
             else
